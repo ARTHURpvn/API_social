@@ -14,13 +14,14 @@ def create_media_container():
         url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
         params = {
             "access_token": ACCESS_TOKEN,
+            "image_url": MEDIA
         }
         
-        # Adicione o parâmetro correto com base no tipo de mídia
-        if TYPE == 'REELS':
-            params["video_url"] = MEDIA
-        else:  # TYPE == 'IMAGE'
-            params["image_url"] = MEDIA
+        # # Adicione o parâmetro correto com base no tipo de mídia
+        # if TYPE == 'REELS':
+        #     params["video_url"] = MEDIA
+        # else:  # TYPE == 'IMAGE'
+        #     params["image_url"] = MEDIA
             
         # Faça a requisição e capture a resposta completa
         response = requests.post(url, params=params)
