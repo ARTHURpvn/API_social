@@ -76,7 +76,7 @@ def instagramCallbackEndpoint():
 def create_instagram_post_endpoint():
     return create_instagram_post()
 
-@app.route('/instagram/container')
+@app.route('/instagram/container', methods=['POST'])
 def create_media_container_endpoint():
     return create_media_container()
 

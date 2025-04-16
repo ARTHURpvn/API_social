@@ -5,7 +5,7 @@ import time
 
 def create_media_container():
     data = request.get_json()
-    TYPE = data.get('type', 'IMAGE')  # Default to IMAGE if not specified
+    TYPE = data.get('type', 'IMAGE') 
     ACCESS_TOKEN = data.get('instagramToken')
     MEDIA = data.get('media')
 
@@ -96,14 +96,13 @@ def publish_media(media_id, INSTAGRAM_ACCOUNT_ID, ACCESS_TOKEN):
         raise Exception(f"Erro ao publicar mídia: {str(e)}")
 
 def create_instagram_post():
+    print("Received request to create_media_container")
+    print(f"Request method: {request.method}")
+    print(f"Request headers: {request.headers}")
+    print(f"Request data: {request.get_data()}")
+
     try:
-        data = request.json
-        required_fields = ['instagram_account_id', 'access_token', 'media_url', 'caption']
-        
-        # Verifica se todos os campos necessários estão presentes
-        for field in required_fields:
-            if field not in data:
-                return jsonify({'error': f'Campo {field} é obrigatório'}), 400
+        data = request.json()
 
         # Cria o container de mídia
         media_id = create_media_container(
