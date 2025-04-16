@@ -1,5 +1,4 @@
-from flask import Flask, request, jsonify, redirect
-from flask_cors import CORS
+from flask import request, jsonify, redirect
 from dotenv import load_dotenv
 import os
 import requests

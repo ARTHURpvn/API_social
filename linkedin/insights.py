@@ -1,6 +1,5 @@
 
 import requests
-import json
 
 def get_insights(access_token, urn):
     """Retrieve post insights from LinkedIn API"""
