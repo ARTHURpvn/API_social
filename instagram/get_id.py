@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify, redirect
 
 APP_ID = "9526502094075634"
 APP_SECRET = "f0d6474c10466f47d5a40146c682e7b7"
-REDIRECT_URI = "https://127.0.0.1:5000/callback/instagram" 
+REDIRECT_URI = "https://api-social-sd6m.onrender.com/callback/instagram" 
 SCOPE = "instagram_basic,pages_show_list"
 
 

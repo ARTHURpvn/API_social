@@ -30,7 +30,7 @@ def upload():
         return jsonify({"error": "Arquivo sem nome"}), 400
 
     filename = save_uploaded_file(file)
-    file_url = f"https://127.0.0.1:5000/uploads/{filename}"
+    file_url = f"https://api-social-sd6m.onrender.com/uploads/{filename}"
 
     return jsonify({"url": file_url}), 200
 
