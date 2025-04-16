@@ -5,6 +5,7 @@ from linkedin.get_token import linkedin, linkedinCallback
 from flask_cors import CORS
 import os
 import uuid
+import mimetypes
 
 # Criação da aplicação Flask
 app = Flask(__name__)
@@ -45,7 +46,14 @@ def upload():
 
 @app.route("/uploads/<filename>")
 def serve_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    if not os.path.exists(file_path):
+        return "File not found", 404
+        
+    # Try to determine MIME type
+    mime_type = mimetypes.guess_type(file_path)[0]
+    
+    return send_from_directory(UPLOAD_FOLDER, filename, mimetype=mime_type)
 
 @app.route("/remove/<filename>")
 def remove_file(filename):

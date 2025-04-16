@@ -3,12 +3,55 @@ import requests
 from flask import  request, jsonify
 import time
 
+from flask import Flask, jsonify, request
+import requests
+
 def create_media_container():
-    data = request.get_json()
-    TYPE = data.get('type', 'IMAGE') 
+    print("Received request to create_media_container")
+    print(f"Request method: {request.method}")
+    print(f"Request headers: {request.headers}")
+    print(f"Request data: {request.get_data()}")
+    
+    try:
+        data = request.get_json()
+        print(f"Parsed JSON data: {data}")
+    except Exception as e:
+        print(f"Error parsing JSON: {str(e)}")
+        return jsonify({"error": "Failed to parse JSON data"}), 400
+    
     ACCESS_TOKEN = data.get('instagramToken')
     MEDIA = data.get('media')
-
+    
+    # Auto-detect media type based on file extension
+    file_extension = MEDIA.split('.')[-1].lower() if '.' in MEDIA else ''
+    TYPE = 'REELS' if file_extension in ['mp4', 'mov', 'mpeg', 'avi'] else 'IMAGE'
+    
+    # Override with explicit type if provided
+    if 'type' in data:
+        TYPE = data.get('type')
+    
+    print(f"Media URL received: {MEDIA}")
+    print(f"Media type detected: {TYPE}")
+    
+    # Validate URL format
+    if not MEDIA.startswith(('http://', 'https://')):
+        return jsonify({"error": "Invalid media URL. Must be an HTTP or HTTPS URL"}), 400
+    
+    # Verify media URL is accessible
+    try:
+        head_response = requests.head(MEDIA)
+        print(f"Media URL head response: Status {head_response.status_code}")
+        print(f"Content-Type: {head_response.headers.get('Content-Type')}")
+        
+        if head_response.status_code != 200:
+            return jsonify({"error": f"Media URL returned status {head_response.status_code}"}), 400
+            
+        content_type = head_response.headers.get('Content-Type', '')
+        if not content_type.startswith(('image/', 'video/')):
+            print(f"Warning: Media URL does not appear to have an image/video Content-Type: {content_type}")
+    except Exception as e:
+        print(f"Warning: Failed to access media URL: {str(e)}")
+    
     try:
         url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
         params = {
@@ -18,10 +61,13 @@ def create_media_container():
         # Add the correct parameter based on media type
         if TYPE == 'REELS' or TYPE == 'VIDEO':
             params["video_url"] = MEDIA
+            print("Using video_url parameter")
         else:  # TYPE == 'IMAGE'
             params["image_url"] = MEDIA
+            print("Using image_url parameter")
             
         # Make the request and capture the full response
+        print(f"Making request to {url} with params: {params}")
         response = requests.post(url, params=params)
         
         # Print debug information
