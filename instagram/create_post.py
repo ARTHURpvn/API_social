@@ -5,54 +5,52 @@ import time
 
 def create_media_container():
     data = request.get_json()
-    TYPE = data.get('type')
+    TYPE = data.get('type', 'IMAGE')  # Default to IMAGE if not specified
     ACCESS_TOKEN = data.get('instagramToken')
     MEDIA = data.get('media')
-
 
     try:
         url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
         params = {
-            "access_token": ACCESS_TOKEN,
-            "image_url": MEDIA
+            "access_token": ACCESS_TOKEN
         }
         
-        # # Adicione o parâmetro correto com base no tipo de mídia
-        # if TYPE == 'REELS':
-        #     params["video_url"] = MEDIA
-        # else:  # TYPE == 'IMAGE'
-        #     params["image_url"] = MEDIA
+        # Add the correct parameter based on media type
+        if TYPE == 'REELS' or TYPE == 'VIDEO':
+            params["video_url"] = MEDIA
+        else:  # TYPE == 'IMAGE'
+            params["image_url"] = MEDIA
             
-        # Faça a requisição e capture a resposta completa
+        # Make the request and capture the full response
         response = requests.post(url, params=params)
         
-        # Imprima informações para debug
+        # Print debug information
         print(f"Status code: {response.status_code}")
         print(f"Response content: {response.text}")
         
-        # Analise a resposta como JSON
+        # Parse the response as JSON
         response_data = response.json()
         
-        # Verifique se há erro na resposta da API
+        # Check if there's an error in the API response
         if "error" in response_data:
-            error_message = response_data.get("error", {}).get("message", "Erro desconhecido")
+            error_message = response_data.get("error", {}).get("message", "Unknown error")
             error_code = response_data.get("error", {}).get("code", "")
-            return jsonify({"error": f"Erro da API ({error_code}) {error_message}"}), 400
+            return jsonify({"error": f"API Error ({error_code}) {error_message}"}), 400
             
-        # Verifique se há ID na resposta
+        # Check if there's an ID in the response
         if "id" in response_data:
             return jsonify({"success": True, "container_id": response_data["id"]}), 200
         else:
-            return jsonify({"error": f"Resposta sem ID: {response_data}"}), 400
+            return jsonify({"error": f"Response without ID: {response_data}"}), 400
             
     except requests.exceptions.RequestException as e:
-        print(f"Erro na requisição: {str(e)}")
-        return jsonify({"error": f"Erro na requisição: {str(e)}"}), 500
+        print(f"Request error: {str(e)}")
+        return jsonify({"error": f"Request error: {str(e)}"}), 500
     except Exception as e:
-        print(f"Erro inesperado: {str(e)}")
-        return jsonify({"error": f"Erro inesperado: {str(e)}"}), 500
-
-
+        print(f"Unexpected error: {str(e)}")
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+    
+    
 def wait_for_media_ready(media_id, ACCESS_TOKEN, retries=10, delay=30):
     try:
         url = f"https://graph.facebook.com/v22.0/{media_id}?fields=status_code&access_token={ACCESS_TOKEN}"
