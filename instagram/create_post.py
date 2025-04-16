@@ -9,8 +9,6 @@ def create_media_container():
     ACCESS_TOKEN = data.get('instagramToken')
     MEDIA = data.get('media')
 
-    if TYPE not in ['REELS', 'IMAGE']:
-        return {"error": "Tipo de mídia inválido. Use 'REELS' ou 'IMAGE'"}, 400
 
     try:
         url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
