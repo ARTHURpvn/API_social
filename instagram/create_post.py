@@ -40,7 +40,7 @@ def create_media_container():
         if "error" in response_data:
             error_message = response_data.get("error", {}).get("message", "Erro desconhecido")
             error_code = response_data.get("error", {}).get("code", "")
-            return jsonify({"error": f"Erro da API ({error_code}): {error_message}"}), 400
+            return jsonify({"error": f"Erro da API ({error_code}) {error_message}"}), 400
             
         # Verifique se há ID na resposta
         if "id" in response_data:
