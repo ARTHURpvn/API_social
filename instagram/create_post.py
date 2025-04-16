@@ -10,46 +10,50 @@ def create_media_container():
     ACCESS_TOKEN = data.get('instagramToken')
     MEDIA = data.get('media')
 
-    if TYPE == 'VIDEO':
-        try:
-            url = f"https://graph.facebook.com/v22.0/{ACCOUNT_ID}/media"
-            params = {
-                "media_type": TYPE,
-                "video_url": MEDIA,
-                "access_token": ACCESS_TOKEN,
-            }
-            response = requests.post(url, params=params)
-            response.raise_for_status()
-            
-            data = response.json()
+    if TYPE not in ['VIDEO', 'IMAGE']:
+        return {"error": "Tipo de mídia inválido. Use 'VIDEO' ou 'IMAGE'"}, 400
 
-            if "id" in data:
-                return data["id"]
-            else:
-                raise Exception(f"Erro ao criar container de mídia: {data}")
+    try:
+        url = f"https://graph.facebook.com/v22.0/{ACCOUNT_ID}/media"
+        params = {
+            "media_type": TYPE,
+            "access_token": ACCESS_TOKEN,
+        }
+        
+        # Adicione o parâmetro correto com base no tipo de mídia
+        if TYPE == 'VIDEO':
+            params["video_url"] = MEDIA
+        else:  # TYPE == 'IMAGE'
+            params["image_url"] = MEDIA
             
-        except requests.exceptions.RequestException as e:
-            raise Exception(f"Erro na requisição: {str(e)}")
-
-    if TYPE == 'IMAGE':
-        try:
-            url = f"https://graph.facebook.com/v22.0/{ACCOUNT_ID}/media"
-            params = {
-                "media_type": TYPE,
-                "image_url": MEDIA,
-                "access_token": ACCESS_TOKEN,
-            }
-            response = requests.post(url, params=params)
-            response.raise_for_status()
+        # Faça a requisição e capture a resposta completa
+        response = requests.post(url, params=params)
+        
+        # Imprima informações para debug
+        print(f"Status code: {response.status_code}")
+        print(f"Response content: {response.text}")
+        
+        # Analise a resposta como JSON
+        response_data = response.json()
+        
+        # Verifique se há erro na resposta da API
+        if "error" in response_data:
+            error_message = response_data.get("error", {}).get("message", "Erro desconhecido")
+            error_code = response_data.get("error", {}).get("code", "")
+            return jsonify({"error": f"Erro da API ({error_code}): {error_message}"}), 400
             
-            data = response.json()
-
-            if "id" in data:
-                return data["id"]
-            else:
-                raise Exception(f"Erro ao criar container de mídia: {data}")
-        except requests.exceptions.RequestException as e:
-            raise Exception(f"Erro na requisição: {str(e)}")
+        # Verifique se há ID na resposta
+        if "id" in response_data:
+            return jsonify({"success": True, "container_id": response_data["id"]}), 200
+        else:
+            return jsonify({"error": f"Resposta sem ID: {response_data}"}), 400
+            
+    except requests.exceptions.RequestException as e:
+        print(f"Erro na requisição: {str(e)}")
+        return jsonify({"error": f"Erro na requisição: {str(e)}"}), 500
+    except Exception as e:
+        print(f"Erro inesperado: {str(e)}")
+        return jsonify({"error": f"Erro inesperado: {str(e)}"}), 500
 
 
 def wait_for_media_ready(media_id, ACCESS_TOKEN, retries=10, delay=30):
