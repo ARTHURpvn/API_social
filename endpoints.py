@@ -9,12 +9,7 @@ import mimetypes
 
 # Criação da aplicação Flask
 app = Flask(__name__)
-CORS(app, 
-        resources={r"/*": {"origins": "*"}}, 
-        methods=["GET", "POST", "OPTIONS"], 
-        allow_headers=["Content-Type", "Authorization"],
-        supports_credentials=True
-    )
+CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://localhost:8080/"]}})
 
 # Configuração da pasta de uploads
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
