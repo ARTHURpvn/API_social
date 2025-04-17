@@ -9,7 +9,7 @@ import mimetypes
 
 # Criação da aplicação Flask
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://localhost:8080/"]}})
+CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
 
 # Configuração da pasta de uploads
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
@@ -84,7 +84,7 @@ def instagramCallbackEndpoint():
 def create_instagram_post_endpoint():
     return create_instagram_post()
 
-@app.route('/instagram/container', methods=['POST', 'OPTIONS'])
+@app.route('/instagram/container', methods=['POST'])
 def create_media_container_endpoint():
     return create_media_container()
 
