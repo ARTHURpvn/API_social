@@ -5,7 +5,15 @@ from linkedin.get_token import linkedin, linkedinCallback
 from flask_cors import CORS
 import os
 import uuid
-import mimetypes
+import cloudinary
+import cloudinary.uploader
+
+# Config Cloudinary
+cloudinary.config( 
+    cloud_name = "djaqxziua", 
+    api_key = "934931552134249", 
+    api_secret = "VFpYXwUZbcUFvjuZksDLkU6-ZZE", 
+)
 
 # Criação da aplicação Flask
 app = Flask(__name__)
@@ -15,53 +23,40 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:8080"}})
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Funções auxiliares para gerenciamento de arquivos
-def ensure_upload_folder_exists():
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.makedirs(UPLOAD_FOLDER)
-
-def save_uploaded_file(file):
-    ensure_upload_folder_exists()
-    ext = os.path.splitext(file.filename)[1]
-    unique_name = f"{uuid.uuid4().hex}{ext}"
-    mime_type = mimetypes.guess_type(file)[0]
-    filepath = os.path.join(UPLOAD_FOLDER, unique_name, mimetype=mime_type)
-    file.save(filepath)
-    return unique_name
-
 # Rotas de upload e gerenciamento de arquivos
+@app.route("/upload", methods=["POST"])
 @app.route("/upload", methods=["POST"])
 def upload():
     if 'file' not in request.files:
         return jsonify({"error": "Nenhum arquivo enviado"}), 400
 
     file = request.files['file']
-
     if file.filename == '':
         return jsonify({"error": "Arquivo sem nome"}), 400
 
-    filename = save_uploaded_file(file)
-    file_url = f"https://api-social-sd6m.onrender.com/uploads/{filename}"
+    ext = os.path.splitext(file.filename)[1]
+    temp_filename = f"{uuid.uuid4().hex}{ext}"
+    temp_filepath = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
+    file.save(temp_filepath)
 
-    return jsonify({"url": file_url}), 200
+    try:
+        # Faz upload para a Cloudinary
+        upload_result = cloudinary.uploader.upload(temp_filepath)
 
-@app.route("/uploads/<filename>")
-def serve_file(filename):
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    if not os.path.exists(file_path):
-        return "File not found", 404
-        
-    # Try to determine MIME type
-    mime_type = mimetypes.guess_type(file_path)[0]
-    
-    return send_from_directory(UPLOAD_FOLDER, filename, mimetype=mime_type)
+        # Pega a URL pública
+        file_url = upload_result.get("secure_url")
 
-@app.route("/remove/<filename>")
-def remove_file(filename):
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    if os.path.exists(file_path):
-        os.remove(file_path)
-    return jsonify({"message": "Arquivo removido com sucesso"}), 200
+        # Remove o arquivo temporário local
+        os.remove(temp_filepath)
+
+        return jsonify({"url": file_url}), 200
+
+    except Exception as e:
+        # Remove o arquivo mesmo se der erro
+        if os.path.exists(temp_filepath):
+            os.remove(temp_filepath)
+        return jsonify({"error": str(e)}), 500
+
 
 # ENDPOINTS DO LINKEDIN
 @app.route('/linkedin')
