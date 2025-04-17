@@ -24,7 +24,8 @@ def save_uploaded_file(file):
     ensure_upload_folder_exists()
     ext = os.path.splitext(file.filename)[1]
     unique_name = f"{uuid.uuid4().hex}{ext}"
-    filepath = os.path.join(UPLOAD_FOLDER, unique_name)
+    mime_type = mimetypes.guess_type(file)[0]
+    filepath = os.path.join(UPLOAD_FOLDER, unique_name, mimetype=mime_type)
     file.save(filepath)
     return unique_name
 

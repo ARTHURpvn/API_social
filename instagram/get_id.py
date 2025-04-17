@@ -6,7 +6,6 @@ APP_SECRET = "f0d6474c10466f47d5a40146c682e7b7"
 REDIRECT_URI = "https://api-social-sd6m.onrender.com/callback/instagram" 
 SCOPE = "instagram_basic,pages_show_list"
 
-
 # URL para login do Instagram (com OAuth)
 AUTH_URL = f"https://www.facebook.com/v22.0/dialog/oauth?client_id={APP_ID}&redirect_uri={REDIRECT_URI}&scope={SCOPE}&response_type=code"
 
@@ -36,14 +35,6 @@ def instagramCallback():
     
     # Redireciona para o frontend com o ID do usuário como parâmetro
     return redirect(f"http://localhost:8080/auth-success?media=instagram&user_id={user_id}&username={user_name}&token={access_token}")
-
-
-# def userExists():
-#     # Endpoint para o frontend verificar se o usuário está autenticado
-#     user_id = request.args.get("user_id")
-#     if user_id in user_tokens:
-#         return jsonify({"user_id": user_id})
-#     return jsonify({"error": "Usuário não autenticado"}), 401
 
 def get_access_token(code):
     url = "https://graph.facebook.com/v22.0/oauth/access_token"
