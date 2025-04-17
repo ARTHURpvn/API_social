@@ -5,49 +5,20 @@ def create_media_container():
     data = request.get_json()
     ACCESS_TOKEN = data.get('instagramToken')
     MEDIA = data.get('media')
+    TYPE = data.get('type')
     
     if not ACCESS_TOKEN or not MEDIA:
         return jsonify({"error": "instagramToken and media are required."}), 400
-
-    # Verifica se o tipo foi enviado explicitamente
-    explicit_type = data.get('type')
     
     print(f"Media URL received: {MEDIA}")
     
-    # Verifica se a URL está acessível e pega o Content-Type
-    try:
-        head_response = requests.head(MEDIA, allow_redirects=True, timeout=10)
-        print(f"Media URL head response: Status {head_response.status_code}")
-        
-        if head_response.status_code != 200:
-            return jsonify({"error": f"Media URL returned status {head_response.status_code}"}), 400
-
-        content_type = head_response.headers.get('Content-Type', '').lower()
-        print(f"Detected Content-Type: {content_type}")
-    except Exception as e:
-        print(f"Exception during HEAD request: {str(e)}")
-        return jsonify({"error": "Failed to access media URL."}), 400
-
-    # Define o tipo com base no Content-Type
-    if explicit_type:
-        TYPE = explicit_type.upper()
-        print(f"Using explicit type: {TYPE}")
-    elif content_type.startswith("video/"):
-        TYPE = "REELS"
-        print("Detected type based on Content-Type: REELS")
-    elif content_type.startswith("image/"):
-        TYPE = "IMAGE"
-        print("Detected type based on Content-Type: IMAGE")
-    else:
-        return jsonify({"error": f"Unsupported media Content-Type: {content_type}"}), 400
-
     url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
     params = {
         "access_token": ACCESS_TOKEN
     }
 
     # Define o parâmetro correto de acordo com o tipo detectado
-    if TYPE in ['REELS', 'VIDEO']:
+    if TYPE in ['REELS']:
         params["video_url"] = MEDIA
         print("Using video_url parameter")
     elif TYPE == 'IMAGE':
@@ -58,10 +29,8 @@ def create_media_container():
 
     # Faz a requisição ao endpoint do Graph API
     try:
-        print(f"Sending POST request to {url} with params: {params}")
         response = requests.post(url, params=params, timeout=60)
-        print(f"Status code: {response.status_code}")
-        print(f"Response content: {response.text}")
+        
     except Exception as e:
         return jsonify({"error": f"Request failed: {str(e)}"}), 500
 
