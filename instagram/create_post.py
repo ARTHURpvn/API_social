@@ -7,10 +7,9 @@ from flask import Flask, jsonify, request
 import requests
 
 def create_media_container():
-    print("Received request to create_media_container")
-    print(f"Request method: {request.method}")
-    print(f"Request headers: {request.headers}")
-    print(f"Request data: {request.get_data()}")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
     
     data = request.get_json()
     ACCESS_TOKEN = data.get('instagramToken')
