@@ -12,13 +12,7 @@ def create_media_container():
     print(f"Request headers: {request.headers}")
     print(f"Request data: {request.get_data()}")
     
-    try:
-        data = request.get_json()
-        print(f"Parsed JSON data: {data}")
-    except Exception as e:
-        print(f"Error parsing JSON: {str(e)}")
-        return jsonify({"error": "Failed to parse JSON data"}), 400
-    
+    data = request.get_json()
     ACCESS_TOKEN = data.get('instagramToken')
     MEDIA = data.get('media')
     
@@ -32,10 +26,6 @@ def create_media_container():
     
     print(f"Media URL received: {MEDIA}")
     print(f"Media type detected: {TYPE}")
-    
-    # Validate URL format
-    if not MEDIA.startswith(('http://', 'https://')):
-        return jsonify({"error": "Invalid media URL. Must be an HTTP or HTTPS URL"}), 400
     
     # Verify media URL is accessible
     try:
@@ -68,7 +58,7 @@ def create_media_container():
             
         # Make the request and capture the full response
         print(f"Making request to {url} with params: {params}")
-        response = requests.post(url, params=params)
+        response = requests.post(url, params=params, timeout=60)
         
         # Print debug information
         print(f"Status code: {response.status_code}")
