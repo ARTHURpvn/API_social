@@ -92,6 +92,7 @@ def publish_media(media_id, INSTAGRAM_ACCOUNT_ID, ACCESS_TOKEN):
             raise Exception(f"Erro ao publicar post: {data}")
     except requests.exceptions.RequestException as e:
         raise Exception(f"Erro ao publicar mídia: {str(e)}")
+    
 
 def create_instagram_post():
     print("Received request to create_media_container")
