@@ -25,7 +25,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Rotas de upload e gerenciamento de arquivos
 @app.route("/upload", methods=["POST"])
-@app.route("/upload", methods=["POST"])
 def upload():
     if 'file' not in request.files:
         return jsonify({"error": "Nenhum arquivo enviado"}), 400
