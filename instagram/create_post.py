@@ -86,7 +86,7 @@ def publish_instagram_post():
             return jsonify({"error": "instagram_account_id, access_token e media_id são obrigatórios"}), 400
 
         publish_url = (
-            f"https://graph.facebook.com/v19.0/{instagram_account_id}/media_publish"
+            f"https://graph.facebook.com/v22.0/{instagram_account_id}/media_publish"
             f"?creation_id={media_id}&access_token={access_token}"
         )
 
