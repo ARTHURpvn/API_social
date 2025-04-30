@@ -13,9 +13,10 @@ def create_media_container():
     
     print(f"Media URL received: {MEDIA}")
     
-    url = f"https://graph.facebook.com/v22.0/17841472937904147/media&caption={CAPTION}"
+    url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
     params = {
-        "access_token": ACCESS_TOKEN
+        "access_token": ACCESS_TOKEN,
+        "caption": CAPTION
     }
 
     # Define o parâmetro correto de acordo com o tipo detectado
