@@ -6,13 +6,14 @@ def create_media_container():
     ACCESS_TOKEN = data.get('instagramToken')
     MEDIA = data.get('media')
     TYPE = data.get('type')
+    CAPTION = data.get('caption')
     
     if not ACCESS_TOKEN or not MEDIA:
         return jsonify({"error": "instagramToken and media are required."}), 400
     
     print(f"Media URL received: {MEDIA}")
     
-    url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
+    url = f"https://graph.facebook.com/v22.0/17841472937904147/media$&caption={CAPTION}"
     params = {
         "access_token": ACCESS_TOKEN
     }
@@ -78,9 +79,11 @@ def publish_media(media_id, instagram_account_id, access_token):
         url = f"https://graph.facebook.com/v22.0/{instagram_account_id}/media_publish"
         params = {
             "creation_id": media_id,
-            "access_token": access_token,
         }
-        response = requests.post(url, params=params)
+        header = {
+            "Authorization": f"Bearer {access_token}"
+        }
+        response = requests.post(url, params=params , headers=header)
         response.raise_for_status()
 
         data = response.json()
@@ -108,9 +111,9 @@ def create_instagram_post():
 
         # Publica diretamente
         publish_result = publish_media(
-            media_id,
             instagram_account_id,
-            access_token
+            access_token,
+            media_id
         )
 
         return jsonify({
