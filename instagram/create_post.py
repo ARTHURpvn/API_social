@@ -74,53 +74,35 @@ def wait_for_media_ready(media_id, ACCESS_TOKEN, retries=10, delay=30):
 
 
 # Passo 3: Publicar a mídia no Instagram
-def publish_media(media_id, instagram_account_id, access_token):
+def publish_instagram_post():
     try:
-        url = f"https://graph.facebook.com/v22.0/{instagram_account_id}/media_publish"
-        params = {
-            "creation_id": media_id,
-        }
-        header = {
-            "Authorization": f"Bearer {access_token}"
-        }
-        response = requests.post(url, params=params , headers=header)
-        response.raise_for_status()
-
-        data = response.json()
-
-        if "id" in data:
-            print("✅ Post publicado com sucesso! ID:", data["id"])
-            return {"success": True, "post_id": data["id"]}
-        else:
-            raise Exception(f"Erro ao publicar post: {data}")
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Erro ao publicar mídia: {str(e)}")
-    
-
-def create_instagram_post():
-    try:
-        print("Received request to publish existing media container")
         data = request.get_json()
 
-        media_id = data.get('media_id')
-        instagram_account_id = data.get('instagram_account_id')
-        access_token = data.get('access_token')
+        instagram_account_id = data.get("instagram_account_id")
+        access_token = data.get("access_token")
+        media_id = data.get("media_id")
 
-        if not all([media_id, instagram_account_id, access_token]):
-            return jsonify({'error': 'Parâmetros obrigatórios ausentes'}), 400
+        if not all([instagram_account_id, access_token, media_id]):
+            return jsonify({"error": "instagram_account_id, access_token e media_id são obrigatórios"}), 400
 
-        # Publica diretamente
-        publish_result = publish_media(
-            instagram_account_id,
-            access_token,
-            media_id
+        publish_url = (
+            f"https://graph.facebook.com/v19.0/{instagram_account_id}/media_publish"
+            f"?creation_id={media_id}&access_token={access_token}"
         )
 
+        response = requests.post(publish_url)
+        response_data = response.json()
+
+        if response.status_code != 200:
+            return jsonify({
+                "error": "Erro ao publicar mídia",
+                "facebook_response": response_data
+            }), response.status_code
+
         return jsonify({
-            'message': 'Post criado com sucesso',
-            'media_id': media_id,
-            'publish_result': publish_result
-        }), 200
+            "status": "success",
+            "post_id": response_data.get("id")
+        })
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": "Erro interno no servidor", "details": str(e)}), 500
