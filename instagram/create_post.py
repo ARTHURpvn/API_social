@@ -13,7 +13,7 @@ def create_media_container():
     
     print(f"Media URL received: {MEDIA}")
     
-    url = f"https://graph.facebook.com/v22.0/17841472937904147/media$&caption={CAPTION}"
+    url = f"https://graph.facebook.com/v22.0/17841472937904147/media&caption={CAPTION}"
     params = {
         "access_token": ACCESS_TOKEN
     }
@@ -78,19 +78,22 @@ def publish_instagram_post():
     try:
         data = request.get_json()
 
-        instagram_account_id = data.get("instagram_account_id")
         access_token = data.get("access_token")
         media_id = data.get("media_id")
 
-        if not all([instagram_account_id, access_token, media_id]):
+        if not all([ access_token, media_id]):
             return jsonify({"error": "instagram_account_id, access_token e media_id são obrigatórios"}), 400
 
         publish_url = (
-            f"https://graph.facebook.com/v22.0/{instagram_account_id}/media_publish"
+            f"https://graph.facebook.com/v22.0/17841472937904147/media_publish"
             f"?creation_id={media_id}&access_token={access_token}"
         )
+        header = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}"
+        }
 
-        response = requests.post(publish_url)
+        response = requests.post(publish_url, headers=header)
         response_data = response.json()
 
         if response.status_code != 200:
