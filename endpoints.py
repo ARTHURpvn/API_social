@@ -1,6 +1,6 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from instagram.get_id import instagram, instagramCallback
-from instagram.create_post import create_media_container, create_instagram_post
+from instagram.create_post import create_media_container, publish_instagram_post
 from linkedin.get_token import linkedin, linkedinCallback
 from flask_cors import CORS
 import os
@@ -86,7 +86,7 @@ def instagramCallbackEndpoint():
 
 @app.route('/instagram/post', methods=['POST'])
 def create_instagram_post_endpoint():
-    return create_instagram_post()
+    return publish_instagram_post()
 
 @app.route('/instagram/container', methods=['POST'])
 def create_media_container_endpoint():
