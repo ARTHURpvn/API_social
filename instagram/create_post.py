@@ -73,16 +73,16 @@ def wait_for_media_ready(media_id, ACCESS_TOKEN, retries=10, delay=30):
 
 
 # Passo 3: Publicar a mídia no Instagram
-def publish_media(media_id, INSTAGRAM_ACCOUNT_ID, ACCESS_TOKEN):
+def publish_media(media_id, instagram_account_id, access_token):
     try:
-        url = f"https://graph.facebook.com/v22.0/{INSTAGRAM_ACCOUNT_ID}/media_publish"
+        url = f"https://graph.facebook.com/v22.0/{instagram_account_id}/media_publish"
         params = {
             "creation_id": media_id,
-            "access_token": ACCESS_TOKEN,
+            "access_token": access_token,
         }
         response = requests.post(url, params=params)
         response.raise_for_status()
-        
+
         data = response.json()
 
         if "id" in data:
@@ -95,34 +95,22 @@ def publish_media(media_id, INSTAGRAM_ACCOUNT_ID, ACCESS_TOKEN):
     
 
 def create_instagram_post():
-    print("Received request to create_media_container")
-    print(f"Request method: {request.method}")
-    print(f"Request headers: {request.headers}")
-    print(f"Request data: {request.get_data()}")
-
     try:
-        data = request.json()
+        print("Received request to publish existing media container")
+        data = request.get_json()
 
-        # Cria o container de mídia
-        media_id = create_media_container(
-            data['instagram_account_id'],
-            data['access_token'],
-            data['media_url'],
-            data['caption']
-        )
+        media_id = data.get('media_id')
+        instagram_account_id = data.get('instagram_account_id')
+        access_token = data.get('access_token')
 
-        if not media_id:
-            return jsonify({'error': 'Falha ao criar container de mídia'}), 500
+        if not all([media_id, instagram_account_id, access_token]):
+            return jsonify({'error': 'Parâmetros obrigatórios ausentes'}), 400
 
-        # Aguarda a mídia estar pronta
-        if not wait_for_media_ready(media_id, data['access_token']):
-            return jsonify({'error': 'Tempo esgotado ao aguardar processamento da mídia'}), 500
-
-        # Publica a mídia
+        # Publica diretamente
         publish_result = publish_media(
             media_id,
-            data['instagram_account_id'],
-            data['access_token']
+            instagram_account_id,
+            access_token
         )
 
         return jsonify({
