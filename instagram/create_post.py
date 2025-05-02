@@ -1,58 +1,46 @@
 from flask import  request, jsonify
 import time, requests
 
-def create_media_container():
-    data = request.get_json()
-    ACCESS_TOKEN = data.get('instagramToken')
-    MEDIA = data.get('media')
-    CAPTION = data.get('caption')
-    
+# Função para criar o media container
+def create_media_container(ACCESS_TOKEN, MEDIA, CAPTION):    
     if not ACCESS_TOKEN or not MEDIA:
-        return jsonify({"error": "instagramToken and media are required."}), 400
-    
-    EXTENSION = MEDIA.split('.')[-1]
-    
-    if EXTENSION == 'mp4':
-        params["video_url"] = MEDIA
-        print("Video URL received: {MEDIA}")
+        return jsonify({"error": "instagramToken e media são obrigatórios."}), 400
 
-    elif EXTENSION == 'jpg' or EXTENSION == 'jpeg':
-        params["image_url"] = MEDIA
-        print("Image URL received: {MEDIA}")
-    else:
-        return jsonify({"error": f"Unsupported media extension: {EXTENSION}"}), 400
-    
+    EXTENSION = MEDIA.split('.')[-1].lower()
 
-    print(f"Media URL received: {MEDIA}")
-    
+    print(f"📥 Media URL recebida: {MEDIA}")
+
     url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
     params = {
         "access_token": ACCESS_TOKEN,
         "caption": CAPTION,
-        "is_carousel_item": FALSE
+        "is_carousel_item": False
     }
 
-    # Faz a requisição ao endpoint do Graph API
+    if EXTENSION == 'mp4':
+        params["video_url"] = MEDIA
+        print(f"🎥 Vídeo detectado: {MEDIA}")
+    elif EXTENSION in ('jpg', 'jpeg'):
+        params["image_url"] = MEDIA
+        print(f"🖼️ Imagem detectada: {MEDIA}")
+    else:
+        return jsonify({"error": f"Extensão de mídia não suportada: {EXTENSION}"}), 400
+
     try:
         response = requests.post(url, params=params, timeout=60)
-        print(response)
-        
+        print(f"📡 Resposta da criação do container: {response.text}")
     except Exception as e:
-        return jsonify({"error": f"Request failed: {str(e)}"}), 501
+        return jsonify({"error": f"Erro ao fazer requisição: {str(e)}"}), 501
 
     response_data = response.json()
 
-    # Trata erros de API
     if "error" in response_data:
-        error_message = response_data["error"].get("message", "Unknown error")
-        error_code = response_data["error"].get("code", "")
-        return jsonify({"error": f"API Error {response_data['error']}"}), 400
+        return jsonify({"error": f"Erro da API: {response_data['error']}"}), 400
 
-    # Retorna o ID do container criado
     if "id" in response_data:
-        return jsonify({"success": True, "container_id": response_data["id"]}), 200
+        return response_data["id"]
     else:
-        return jsonify({"error": f"Unexpected response: {response_data}"}), 400
+        return jsonify({"error": f"Resposta inesperada: {response_data}"}), 400
       
     
 def wait_for_media_ready(media_id, ACCESS_TOKEN, retries=10, delay=30):
@@ -86,15 +74,15 @@ def publish_instagram_post():
         access_token = data.get("access_token")
         media = data.get("media")
         caption = data.get("caption")
-        
-        if not all([ access_token, media, caption ]):
-            return jsonify({"error": "instagram_account_id, access_token e media_id são obrigatórios"}), 400
 
-        media_id = create_media_container(
-            instagramToken=access_token,
-            media=media,
-            caption=caption
-        )
+        if not all([access_token, media, caption]):
+            return jsonify({"error": "access_token, media e caption são obrigatórios."}), 400
+
+        media_id = create_media_container(access_token, media, caption)
+        
+        # Verifica se houve erro na criação
+        if isinstance(media_id, tuple):  # é um (jsonify, status_code)
+            return media_id
 
         if not wait_for_media_ready(media_id, access_token):
             return jsonify({"error": "Tempo esgotado! A mídia ainda não está pronta."}), 400
@@ -102,13 +90,13 @@ def publish_instagram_post():
         publish_url = f"https://graph.facebook.com/v22.0/17841472937904147/media_publish"
         params = {
             "creation_id": media_id,
+            "access_token": access_token
         }
-        header = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}"
+        headers = {
+            "Content-Type": "application/json"
         }
 
-        response = requests.post(publish_url, headers=header, params=params)
+        response = requests.post(publish_url, headers=headers, params=params)
         response_data = response.json()
 
         if response.status_code != 200:
@@ -123,4 +111,6 @@ def publish_instagram_post():
         })
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": "Erro interno no servidor", "details": str(e)}), 500
