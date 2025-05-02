@@ -75,6 +75,7 @@ def linkedinEndpoint():
 def linkedinCallbackEndpoint():
     return linkedinCallback()
 
+
 # ENDPOINTS DO INSTAGRAM
 @app.route('/instagram')
 def instagramEndpoint():

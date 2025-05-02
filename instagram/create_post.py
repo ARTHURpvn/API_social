@@ -5,11 +5,20 @@ def create_media_container():
     data = request.get_json()
     ACCESS_TOKEN = data.get('instagramToken')
     MEDIA = data.get('media')
-    TYPE = data.get('type')
     CAPTION = data.get('caption')
     
     if not ACCESS_TOKEN or not MEDIA:
         return jsonify({"error": "instagramToken and media are required."}), 400
+    
+    EXTENSION = MEDIA.split('.')[-1]
+    
+    if EXTENSION == 'mp4':
+        TYPE = 'REELS'
+    elif EXTENSION == 'jpg' or EXTENSION == 'png':
+        TYPE = 'IMAGE'
+    else:
+        return jsonify({"error": f"Unsupported media extension: {EXTENSION}"}), 400
+    
     
     print(f"Media URL received: {MEDIA}")
     
@@ -22,10 +31,10 @@ def create_media_container():
     # Define o parâmetro correto de acordo com o tipo detectado
     if TYPE in ['REELS']:
         params["video_url"] = MEDIA
-        print("Using video_url parameter")
+
     elif TYPE == 'IMAGE':
         params["image_url"] = MEDIA
-        print("Using image_url parameter")
+
     else:
         return jsonify({"error": f"Unsupported media type: {TYPE}"}), 400
 
