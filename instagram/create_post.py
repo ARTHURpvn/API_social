@@ -19,7 +19,7 @@ def create_media_container():
     else:
         return jsonify({"error": f"Unsupported media extension: {EXTENSION}"}), 400
     
-    
+
     print(f"Media URL received: {MEDIA}")
     
     url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
@@ -90,16 +90,14 @@ def publish_instagram_post():
 
         access_token = data.get("access_token")
         media = data.get("media")
-        media_type = data.get("media_type")
         caption = data.get("caption")
         
-        if not all([ access_token, media, media_type, caption ]):
+        if not all([ access_token, media, caption ]):
             return jsonify({"error": "instagram_account_id, access_token e media_id são obrigatórios"}), 400
 
         media_id = create_media_container(
             instagramToken=access_token,
             media=media,
-            type=media_type,
             caption=caption
         )
 
