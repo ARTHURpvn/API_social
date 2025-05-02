@@ -13,9 +13,12 @@ def create_media_container():
     EXTENSION = MEDIA.split('.')[-1]
     
     if EXTENSION == 'mp4':
-        TYPE = 'REELS'
-    elif EXTENSION == 'jpg' or EXTENSION == 'png':
-        TYPE = 'IMAGE'
+        params["video_url"] = MEDIA
+        print("Video URL received: {MEDIA}")
+
+    elif EXTENSION == 'jpg' or EXTENSION == 'jpeg':
+        params["image_url"] = MEDIA
+        print("Image URL received: {MEDIA}")
     else:
         return jsonify({"error": f"Unsupported media extension: {EXTENSION}"}), 400
     
@@ -25,25 +28,17 @@ def create_media_container():
     url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
     params = {
         "access_token": ACCESS_TOKEN,
-        "caption": CAPTION
+        "caption": CAPTION,
+        "is_carousel_item": FALSE
     }
-
-    # Define o parâmetro correto de acordo com o tipo detectado
-    if TYPE in ['REELS']:
-        params["video_url"] = MEDIA
-
-    elif TYPE == 'IMAGE':
-        params["image_url"] = MEDIA
-
-    else:
-        return jsonify({"error": f"Unsupported media type: {TYPE}"}), 400
 
     # Faz a requisição ao endpoint do Graph API
     try:
         response = requests.post(url, params=params, timeout=60)
+        print(response)
         
     except Exception as e:
-        return jsonify({"error": f"Request failed: {str(e)}"}), 500
+        return jsonify({"error": f"Request failed: {str(e)}"}), 501
 
     response_data = response.json()
 
@@ -51,7 +46,7 @@ def create_media_container():
     if "error" in response_data:
         error_message = response_data["error"].get("message", "Unknown error")
         error_code = response_data["error"].get("code", "")
-        return jsonify({"error": f"API Error ({error_code}): {error_message}"}), 400
+        return jsonify({"error": f"API Error {response_data['error']}"}), 400
 
     # Retorna o ID do container criado
     if "id" in response_data:
