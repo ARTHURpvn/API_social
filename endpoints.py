@@ -66,6 +66,16 @@ def upload():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/remove/<filename>", methods=["DELETE"])
+def remove(filename):
+    try:
+        cloudinary.uploader.destroy(filename)
+        return jsonify({"message": "Arquivo removido com sucesso"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    
+
 # ENDPOINTS DO LINKEDIN
 @app.route('/linkedin')
 def linkedinEndpoint():
