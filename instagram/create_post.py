@@ -19,10 +19,12 @@ def create_media_container(ACCESS_TOKEN, MEDIA, CAPTION):
 
     if EXTENSION == 'mp4':
         params["video_url"] = MEDIA
-        print(f"🎥 Vídeo detectado: {MEDIA}")
+        params["media_type"] = "REELS"
+        print(f"🎥 Vídeo detectado")
+
     elif EXTENSION in ('jpg', 'jpeg'):
         params["image_url"] = MEDIA
-        print(f"🖼️ Imagem detectada: {MEDIA}")
+        print(f"🖼️ Imagem detectada")
     else:
         return jsonify({"error": f"Extensão de mídia não suportada: {EXTENSION}"}), 400
 
