@@ -26,20 +26,17 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Rotas de upload e gerenciamento de arquivos
 @app.route("/upload", methods=["POST"])
 def upload():
-    print("Requisição recebida no /upload")  # LOG
-
-    if 'file' not in request.files:
-        print("Nenhum arquivo na requisição.")  # LOG
-        return jsonify({"error": "Nenhum arquivo enviado"}), 400
-
     file = request.files['file']
-    if file.filename == '':
-        print("Arquivo com nome vazio.")  # LOG
-        return jsonify({"error": "Arquivo sem nome"}), 400
-
     ext = os.path.splitext(file.filename)[1]
     temp_filename = f"{uuid.uuid4().hex}{ext}"
     temp_filepath = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
+
+    mimetype = file.mimetype
+
+    if mimetype.startswith("image/"):
+        type = "image"
+    elif mimetype.startswith("video/"):
+        type = "video"
 
     # Garante que a pasta de uploads existe
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -50,7 +47,11 @@ def upload():
 
         # Faz upload para a Cloudinary
         print("Iniciando upload para Cloudinary...")  # LOG
-        upload_result = cloudinary.uploader.upload(temp_filepath)
+        if type == "image":
+            upload_result = cloudinary.uploader.upload(temp_filepath, resource_type="image")
+        else:
+            upload_result = cloudinary.uploader.upload_large(temp_filepath, resource_type="video", chunk_size=6000000)
+
 
         file_url = upload_result.get("secure_url")
         print(f"Upload concluído: {file_url}")  # LOG
