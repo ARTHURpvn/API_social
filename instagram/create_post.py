@@ -106,6 +106,7 @@ def check_instagram_media_status():
         return jsonify({"status": data.get("status_code")})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 
 def publish_instagram():
     data = request.get_json()
