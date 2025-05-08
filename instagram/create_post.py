@@ -69,9 +69,8 @@ def create_instagram_media():
     }), 202
 
 def check_instagram_media_status():
-    data = request.get_json()
-    media_id = data.get("media_id")
-    access_token = data.get("access_token")
+    media_id = request.args.get("media_id")
+    access_token = request.args.get("access_token")
 
     if not all([media_id, access_token]):
         return jsonify({"error": "media_id e access_token são obrigatórios."}), 400
