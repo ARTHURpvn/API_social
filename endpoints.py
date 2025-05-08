@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from instagram.get_id import instagram
-from instagram.create_post import check_instagram_media_status, create_instagram_media
+from instagram.create_post import check_instagram_media_status, create_instagram_media, publish_instagram_media
 from linkedin.get_token import linkedin, linkedinCallback
 from flask_cors import CORS
 from instagram.create_post import instagram_post_routes
@@ -89,18 +89,24 @@ def linkedinEndpoint():
 def linkedinCallbackEndpoint():
     return linkedinCallback()
 
+
+
 # ENDPOINTS DO INSTAGRAM
 @app.route('/instagram')
 def instagramEndpoint():
     return instagram()
 
-@app.route('/instagram/post', methods=['POST'])
+@app.route('/instagram/media', methods=['POST'])
 def create_instagram_post_endpoint():
     return create_instagram_media()
 
 @app.route('/instagram/status', methods=['POST'])
 def create_media_container_endpoint():
     return check_instagram_media_status()
+
+@app.route('/instagram/post', methods=['POST'])
+def create_instagram_post_endpoint():
+    return publish_instagram_media()
 
 # Execução da aplicação
 if __name__ == '__main__':
