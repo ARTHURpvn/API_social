@@ -108,7 +108,7 @@ def check_instagram_media_status():
         return jsonify({"error": str(e)}), 500
 
 
-def publish_instagram_media():
+def publish_instagram():
     data = request.get_json()
     access_token = data.get("access_token")
     media_id = data.get("media_id")
