@@ -104,7 +104,7 @@ def create_instagram_post_endpoint():
 def create_media_container_endpoint():
     return check_instagram_media_status()
 
-@app.route('/instagram/post', methods=['POST'])
+@app.route('/instagram/posts', methods=['POST'])
 def create_instagram_post_endpoint():
     return publish_instagram()
 
