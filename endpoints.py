@@ -1,12 +1,20 @@
 from flask import Flask, request, jsonify
 from instagram.get_id import instagram, instagramCallback
-from instagram.create_post import create_media_container, publish_instagram_post
+from instagram.create_post import check_instagram_media_status, publish_instagram_post
 from linkedin.get_token import linkedin, linkedinCallback
 from flask_cors import CORS
+from instagram.create_post import instagram_post_routes
+from instagram.get_id import instagram_id_routes
 import os
 import uuid
 import cloudinary
 import cloudinary.uploader
+
+# Criação da aplicação Flask
+app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "https://api-social-sd6m.onrender.com", "https://preview--socialwhiz-creator.lovable.app"]}})
+
+app.register_blueprint(instagram_post_routes)
 
 # Config Cloudinary
 cloudinary.config( 
@@ -15,9 +23,6 @@ cloudinary.config(
     api_secret = "VFpYXwUZbcUFvjuZksDLkU6-ZZE", 
 )
 
-# Criação da aplicação Flask
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "https://api-social-sd6m.onrender.com", "https://preview--socialwhiz-creator.lovable.app"]}})
 
 # Configuração da pasta de uploads
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
@@ -76,7 +81,6 @@ def remove(filename):
         return jsonify({"error": str(e)}), 500
     
     
-
 # ENDPOINTS DO LINKEDIN
 @app.route('/linkedin')
 def linkedinEndpoint():
@@ -86,23 +90,18 @@ def linkedinEndpoint():
 def linkedinCallbackEndpoint():
     return linkedinCallback()
 
-
 # ENDPOINTS DO INSTAGRAM
 @app.route('/instagram')
 def instagramEndpoint():
     return instagram()
 
-@app.route('/callback/instagram')
-def instagramCallbackEndpoint():
-    return instagramCallback()
-
 @app.route('/instagram/post', methods=['POST'])
 def create_instagram_post_endpoint():
     return publish_instagram_post()
 
-@app.route('/instagram/container', methods=['POST'])
+@app.route('/instagram/status', methods=['POST'])
 def create_media_container_endpoint():
-    return create_media_container()
+    return check_instagram_media_status()
 
 # Execução da aplicação
 if __name__ == '__main__':
