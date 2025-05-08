@@ -100,7 +100,7 @@ def instagramEndpoint():
 def create_instagram_media_endpoint():
     return create_instagram_media()
 
-@app.route('/instagram/status', methods=['POST'])
+@app.route('/instagram/status', methods=['GET'])
 def create_media_container_endpoint():
     return check_instagram_media_status()
 

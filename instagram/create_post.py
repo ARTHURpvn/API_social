@@ -46,29 +46,6 @@ def create_media_container(ACCESS_TOKEN, MEDIA, CAPTION):
         return response_data["id"]
     else:
         return jsonify({"error": f"Resposta inesperada: {response_data}"}), 400
-      
-    
-def wait_for_media_ready(media_id, ACCESS_TOKEN, retries=10, delay=30):
-    try:
-        url = f"https://graph.facebook.com/v22.0/{media_id}?fields=status_code&access_token={ACCESS_TOKEN}"
-
-        for _ in range(retries):
-            response = requests.get(url)
-            response.raise_for_status()
-            data = response.json()
-
-            status = data.get("status_code")
-            print(f"⏳ Status da mídia: {status}")
-
-            if status == "FINISHED":  
-                print("✅ Mídia pronta para publicação!")
-                return True
-            time.sleep(delay)
-
-        print("❌ Tempo esgotado! A mídia ainda não está pronta.")
-        return False
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Erro ao verificar status da mídia: {str(e)}")
 
 
 # Passo 3: Publicar a mídia no Instagram
@@ -92,8 +69,9 @@ def create_instagram_media():
     }), 202
 
 def check_instagram_media_status():
-    media_id = request.args.get("media_id")
-    access_token = request.args.get("access_token")
+    data = request.get_json()
+    media_id = data.get("media_id")
+    access_token = data.get("access_token")
 
     if not all([media_id, access_token]):
         return jsonify({"error": "media_id e access_token são obrigatórios."}), 400
@@ -104,6 +82,7 @@ def check_instagram_media_status():
         response.raise_for_status()
         data = response.json()
         return jsonify({"status": data.get("status_code")})
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
