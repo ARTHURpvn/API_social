@@ -65,9 +65,6 @@ def create_instagram_media():
     if not all([access_token, media, caption]):
         return jsonify({"error": "access_token, media e caption são obrigatórios."}), 400
     
-    if not isinstance(media, dict):
-        return jsonify({"error": "media deve ser um dicionário."}), 400
-    
     if len(media) > 1:
         carousel = True
 
