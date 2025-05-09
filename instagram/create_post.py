@@ -1,7 +1,7 @@
 from flask import  request, jsonify
 import requests
 from flask import Blueprint
-from utils.api_request import making_request
+from instagram.utils.api_request import making_request
 
 instagram_post_routes = Blueprint('instagram', __name__)
 
