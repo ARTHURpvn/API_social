@@ -6,41 +6,41 @@ from instagram.utils.api_request import making_request
 instagram_post_routes = Blueprint('instagram', __name__)
 
 # Função para criar o media container
-def create_media_container(ACCESS_TOKEN, MEDIA, CAPTION, CAROUSEL):    
+def create_media_container(ACCESS_TOKEN, MEDIA, CAPTION, CAROUSEL):
+
     medias_ids = []
 
+    print(MEDIA)
     if not ACCESS_TOKEN and not MEDIA and not CAPTION and not CAROUSEL:
         return jsonify({"error": "instagramToken e media são obrigatórios."}), 400
     
-    for i in MEDIA:
-        EXTENSION = MEDIA[i].split('.')[-1].lower()
+    for url in MEDIA:
+        EXTENSION = url.split('.')[-1].lower()
 
-        print(f"📥 Media URL recebida: {MEDIA[i]}")
+        print(f"📥 Media URL recebida: {url}")
 
-        url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
+        url_request = "https://graph.facebook.com/v22.0/17841472937904147/media"
         params = {
             "access_token": ACCESS_TOKEN,
+            "is_carousel_item": CAROUSEL
         }
 
-        if(CAROUSEL == True):
-            params["is_carousel_item"] = True
-        else:
-            params["is_carousel_item"] = False
+        if not CAROUSEL:
             params["caption"] = CAPTION
 
-
         if EXTENSION == 'mp4':
-            params["video_url"] = MEDIA[i]
-            params["media_type"] = "REELS"
+            params["video_url"] = url
             print(f"🎥 Vídeo detectado")
 
         elif EXTENSION in ('jpg', 'jpeg'):
-            params["image_url"] = MEDIA[i]
+            params["image_url"] = url
             print(f"🖼️ Imagem detectada")
+            
         else:
             return jsonify({"error": f"Extensão de mídia não suportada: {EXTENSION}"}), 400
 
-        medias_ids.append(making_request(url, params))
+        medias_ids.append(making_request(url_request, params))
+
 
     if (CAROUSEL == True):
         url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
