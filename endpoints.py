@@ -1,9 +1,7 @@
 from flask import Flask, request, jsonify
-from instagram.get_id import instagram
-from instagram.create_post import check_instagram_media_status, create_instagram_media, publish_instagram
 from linkedin.get_token import linkedin, linkedinCallback
 from flask_cors import CORS
-from instagram.create_post import instagram_post_routes
+from instagram.routes.instagram import instagram_bp
 import os
 import uuid
 import cloudinary
@@ -13,7 +11,7 @@ import cloudinary.uploader
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "https://api-social-sd6m.onrender.com", "https://preview--socialwhiz-creator.lovable.app"]}})
 
-app.register_blueprint(instagram_post_routes)
+app.register_blueprint(instagram_bp)
 
 # Config Cloudinary
 cloudinary.config( 
@@ -90,23 +88,6 @@ def linkedinCallbackEndpoint():
     return linkedinCallback()
 
 
-
-# ENDPOINTS DO INSTAGRAM
-@app.route('/instagram')
-def instagramEndpoint():
-    return instagram()
-
-@app.route('/instagram/media', methods=['POST'])
-def create_instagram_media_endpoint():
-    return create_instagram_media()
-
-@app.route('/instagram/status', methods=['GET'])
-def create_media_container_endpoint():
-    return check_instagram_media_status()
-
-@app.route('/instagram/post', methods=['POST'])
-def create_instagram_post_endpoint():
-    return publish_instagram()
 
 # Execução da aplicação
 if __name__ == '__main__':
