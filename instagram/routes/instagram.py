@@ -4,7 +4,7 @@ from instagram.create_post import (
     check_instagram_media_status,
     publish_instagram
 )
-from get_id import instagram
+from instagram.get_id import instagram
 
 instagram_bp = Blueprint('instagram_bp', __name__, url_prefix='/instagram')
 

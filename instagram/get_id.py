@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, request, jsonify, redirect
+from flask import request, jsonify, redirect
 
 APP_ID = "9526502094075634"
 APP_SECRET = "f0d6474c10466f47d5a40146c682e7b7"
