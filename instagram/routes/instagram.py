@@ -1,5 +1,5 @@
-from flask import Blueprint, request, jsonify
-from create_post import (
+from flask import Blueprint
+from instagram.create_post import (
     create_instagram_media,
     check_instagram_media_status,
     publish_instagram
