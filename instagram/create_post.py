@@ -2,8 +2,13 @@ from flask import  request, jsonify
 import requests
 from flask import Blueprint
 from instagram.utils.api_request import making_request
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 instagram_post_routes = Blueprint('instagram', __name__)
+APP_ID = os.getenv("INSTAGRAM_APP_ID")
 
 # Função para criar o media container
 def create_media_container(ACCESS_TOKEN, MEDIA, CAPTION, CAROUSEL):
@@ -19,7 +24,7 @@ def create_media_container(ACCESS_TOKEN, MEDIA, CAPTION, CAROUSEL):
 
         print(f"📥 Media URL recebida: {url}")
 
-        url_request = "https://graph.facebook.com/v22.0/17841472937904147/media"
+        url_request = f"https://graph.facebook.com/v22.0/{APP_ID}/media"
         params = {
             "access_token": ACCESS_TOKEN,
             "is_carousel_item": CAROUSEL
@@ -43,7 +48,7 @@ def create_media_container(ACCESS_TOKEN, MEDIA, CAPTION, CAROUSEL):
 
 
     if (CAROUSEL == True):
-        url = f"https://graph.facebook.com/v22.0/17841472937904147/media"
+        url = f"https://graph.facebook.com/v22.0/{APP_ID}/media"
         params = {
             "caption": CAPTION,
             "media_type": "CAROUSEL",
@@ -103,7 +108,7 @@ def publish_instagram():
     if not all([access_token, media_id]):
         return jsonify({"error": "access_token e media_id são obrigatórios."}), 400
 
-    url = f"https://graph.facebook.com/v22.0/17841472937904147/media_publish"
+    url = f"https://graph.facebook.com/v22.0/{APP_ID}/media_publish"
     params = {
         "creation_id": media_id,
         "access_token": access_token

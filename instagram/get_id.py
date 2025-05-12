@@ -1,9 +1,14 @@
 import requests
 from flask import request, jsonify, redirect
+from dotenv import load_dotenv
+import os
 
-APP_ID = "9526502094075634"
-APP_SECRET = "f0d6474c10466f47d5a40146c682e7b7"
-REDIRECT_URI = "https://api-social-sd6m.onrender.com/callback/instagram" 
+load_dotenv()
+
+APP_ID = os.getenv("INSTAGRAM_APP_ID")
+APP_SECRET = os.getenv("APP_SECRET")
+REDIRECT_URI = os.getenv("REDIRECT_URI")
+
 SCOPE = "instagram_basic,pages_show_list"
 
 # URL para login do Instagram (com OAuth)
