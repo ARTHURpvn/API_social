@@ -2,10 +2,13 @@ from flask import Flask, request, jsonify
 from linkedin.get_token import linkedin, linkedinCallback
 from flask_cors import CORS
 from instagram.routes.instagram import instagram_bp
+from dotenv import load_dotenv
 import os
 import uuid
 import cloudinary
 import cloudinary.uploader
+
+load_dotenv()
 
 # Criação da aplicação Flask
 app = Flask(__name__)
@@ -13,11 +16,13 @@ CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "https://api-s
 
 app.register_blueprint(instagram_bp)
 
+
+
 # Config Cloudinary
 cloudinary.config( 
-    cloud_name = "djaqxziua", 
-    api_key = "934931552134249", 
-    api_secret = "VFpYXwUZbcUFvjuZksDLkU6-ZZE", 
+    cloud_name = os.getenv("CLOUD_NAME"),
+    api_key = os.getenv("API_KEY"), 
+    api_secret = os.getenv("API_SECRET"), 
 )
 
 # Configuração da pasta de uploads
@@ -66,6 +71,7 @@ def upload():
         if os.path.exists(temp_filepath):
             os.remove(temp_filepath)
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/thumbnail/<filename>", methods=["GET"])
 def thumbnail(filename):
