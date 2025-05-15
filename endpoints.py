@@ -72,14 +72,14 @@ def upload():
             thumbnail_url = cloudinary.CloudinaryVideo(upload_result["public_id"]).build_url(
                 format="jpg",
                 transformation=[
-                    {"width": 640, "height": 360, "crop": "fill"},
+                    {"width": 640, "height": 640, "crop": "fill"},
                     {"start_offset": "1"}
                 ]
             )
         else:
             thumbnail_url = cloudinary.CloudinaryImage(upload_result["public_id"]).build_url(
                 width=640,
-                height=360,
+                height=640,
                 crop="fill"
             )
 
