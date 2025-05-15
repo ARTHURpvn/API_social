@@ -17,7 +17,6 @@ CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "https://api-s
 app.register_blueprint(instagram_bp)
 
 
-
 # Config Cloudinary
 cloudinary.config( 
     cloud_name = os.getenv("CLOUD_NAME"),
@@ -38,54 +37,63 @@ def upload():
     temp_filepath = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
 
     mimetype = file.mimetype
+    print(f"Mime type recebido: {mimetype}")  # LOG
 
     if mimetype.startswith("image/"):
-        type = "image"
+        resource_type = "image"
     elif mimetype.startswith("video/"):
-        type = "video"
+        resource_type = "video"
+    else:
+        return jsonify({"error": f"Tipo de arquivo não suportado: {mimetype}"}), 400
 
-    # Garante que a pasta de uploads existe
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     try:
-        print(f"Salvando arquivo em {temp_filepath}")  # LOG
+        print(f"Salvando arquivo em {temp_filepath}")
         file.save(temp_filepath)
 
-        # Faz upload para a Cloudinary
-        print("Iniciando upload para Cloudinary...")  # LOG
-        if type == "image":
+        print("Iniciando upload para Cloudinary...")
+
+        if resource_type == "image":
             upload_result = cloudinary.uploader.upload(temp_filepath, resource_type="image")
         else:
-            upload_result = cloudinary.uploader.upload_large(temp_filepath, resource_type="video", chunk_size=6000000)
-
+            upload_result = cloudinary.uploader.upload_large(
+                temp_filepath,
+                resource_type="video",
+                chunk_size=6000000
+            )
 
         file_url = upload_result.get("secure_url")
-        print(f"Upload concluído: {file_url}")  # LOG
+        print(f"Upload concluído: {file_url}")
 
         os.remove(temp_filepath)
 
-        return jsonify({"url": file_url}), 200
+        if resource_type == "video":
+            thumbnail_url = cloudinary.CloudinaryVideo(upload_result["public_id"]).build_url(
+                format="jpg",
+                transformation=[
+                    {"width": 640, "height": 360, "crop": "fill"},
+                    {"start_offset": "1"}
+                ]
+            )
+        else:
+            thumbnail_url = cloudinary.CloudinaryImage(upload_result["public_id"]).build_url(
+                width=640,
+                height=360,
+                crop="fill"
+            )
+
+
+        return jsonify({
+            "url": file_url,
+            "public_id": upload_result.get("public_id"),
+            "thumbnail_url": thumbnail_url
+        }), 200
 
     except Exception as e:
-        print("Erro no upload:", str(e))  # LOG DE ERRO
+        print("Erro no upload:", str(e))
         if os.path.exists(temp_filepath):
             os.remove(temp_filepath)
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/thumbnail/<filename>", methods=["GET"])
-def thumbnail(filename):
-    try:
-        # Gera a URL da miniatura
-        thumbnail_url = cloudinary.CloudinaryVideo(filename).build_url(
-            format="jpg",
-            transformation=[
-                {"width": 640, "height": 360, "crop": "fill"},
-                {"start_offset": "1"}  # segundos do vídeo que você quer capturar
-            ]
-        )
-        return jsonify({"thumbnail_url": thumbnail_url}), 200
-    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
