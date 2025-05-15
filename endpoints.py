@@ -20,7 +20,6 @@ cloudinary.config(
     api_secret = "VFpYXwUZbcUFvjuZksDLkU6-ZZE", 
 )
 
-
 # Configuração da pasta de uploads
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -66,6 +65,21 @@ def upload():
         print("Erro no upload:", str(e))  # LOG DE ERRO
         if os.path.exists(temp_filepath):
             os.remove(temp_filepath)
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/thumbnail/<filename>", methods=["GET"])
+def thumbnail(filename):
+    try:
+        # Gera a URL da miniatura
+        thumbnail_url = cloudinary.CloudinaryVideo(filename).build_url(
+            format="jpg",
+            transformation=[
+                {"width": 640, "height": 360, "crop": "fill"},
+                {"start_offset": "1"}  # segundos do vídeo que você quer capturar
+            ]
+        )
+        return jsonify({"thumbnail_url": thumbnail_url}), 200
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
