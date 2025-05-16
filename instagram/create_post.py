@@ -8,7 +8,7 @@ import os
 load_dotenv()
 
 instagram_post_routes = Blueprint('instagram', __name__)
-APP_ID = os.getenv("INSTAGRAM_APP_ID")
+APP_ID = os.getenv("INSTAGRAM_USER_ID")
 
 # Função para criar o media container
 def create_media_container(ACCESS_TOKEN, MEDIA, CAPTION, CAROUSEL):

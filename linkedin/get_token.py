@@ -7,13 +7,13 @@ load_dotenv()
 
 client_id = os.getenv("LINKEDIN_CLIENT_ID")
 client_secret = os.getenv("LINKEDIN_CLIENT_SECRET")
-redirect_uri = os.getenv("REDIRECT_URI")
+INSTAGRAM_REDIRECT_URI = os.getenv("INSTAGRAM_REDIRECT_URI")
 state = os.getenv("STATE")
 
 
 def get_user_code():
     """Abre a página de login do LinkedIn e aguarda o redirecionamento."""
-    return f"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={client_id}&redirect_uri={redirect_uri}&scope=openid,profile,w_member_social&state={state}"
+    return f"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={client_id}&INSTAGRAM_REDIRECT_URI={INSTAGRAM_REDIRECT_URI}&scope=openid,profile,w_member_social&state={state}"
 
 def get_access_token(code):
     url = "https://www.linkedin.com/oauth/v2/accessToken"
@@ -21,7 +21,7 @@ def get_access_token(code):
         "grant_type": "authorization_code",
         "client_id": client_id,
         "client_secret": client_secret,
-        "redirect_uri": redirect_uri,
+        "INSTAGRAM_REDIRECT_URI": INSTAGRAM_REDIRECT_URI,
         "code": code,
     }
     response = requests.post(url, data=data)

@@ -19,9 +19,9 @@ app.register_blueprint(instagram_bp)
 
 # Config Cloudinary
 cloudinary.config( 
-    cloud_name = os.getenv("CLOUD_NAME"),
-    api_key = os.getenv("API_KEY"), 
-    api_secret = os.getenv("API_SECRET"), 
+    CLOUDINARY_NAME = os.getenv("CLOUDINARY_NAME"),
+    CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY"), 
+    CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET"), 
 )
 
 # Configuração da pasta de uploads

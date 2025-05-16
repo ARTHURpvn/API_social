@@ -6,13 +6,13 @@ import os
 load_dotenv()
 
 APP_ID = os.getenv("INSTAGRAM_APP_ID")
-APP_SECRET = os.getenv("APP_SECRET")
-REDIRECT_URI = os.getenv("REDIRECT_URI")
+INSTAGRAM_APP_SECRET = os.getenv("INSTAGRAM_APP_SECRET")
+INSTAGRAM_REDIRECT_URI = os.getenv("INSTAGRAM_REDIRECT_URI")
 
 SCOPE = "instagram_basic,pages_show_list"
 
 # URL para login do Instagram (com OAuth)
-AUTH_URL = f"https://www.facebook.com/v22.0/dialog/oauth?client_id={APP_ID}&redirect_uri={REDIRECT_URI}&scope={SCOPE}&response_type=code"
+AUTH_URL = f"https://www.facebook.com/v22.0/dialog/oauth?client_id={APP_ID}&INSTAGRAM_REDIRECT_URI={INSTAGRAM_REDIRECT_URI}&scope={SCOPE}&response_type=code"
 
 # Armazenamento temporário do token (em produção, use Redis ou banco de dados)
 user_tokens = {}
@@ -46,8 +46,8 @@ def get_access_token(code):
 
     params = {
         "client_id": APP_ID,
-        "client_secret": APP_SECRET,
-        "redirect_uri": REDIRECT_URI,
+        "client_secret": INSTAGRAM_APP_SECRET,
+        "INSTAGRAM_REDIRECT_URI": INSTAGRAM_REDIRECT_URI,
         "code": code,
     }
 
