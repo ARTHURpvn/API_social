@@ -12,7 +12,7 @@ INSTAGRAM_REDIRECT_URI = os.getenv("INSTAGRAM_REDIRECT_URI")
 SCOPE = "instagram_basic,pages_show_list"
 
 # URL para login do Instagram (com OAuth)
-AUTH_URL = f"https://www.facebook.com/v22.0/dialog/oauth?client_id={APP_ID}&REDIRECT_URI={INSTAGRAM_REDIRECT_URI}&scope={SCOPE}&response_type=code"
+AUTH_URL = f"https://www.facebook.com/v22.0/dialog/oauth?client_id={APP_ID}&redirect_uri={INSTAGRAM_REDIRECT_URI}&scope={SCOPE}&response_type=code"
 
 # Armazenamento temporário do token (em produção, use Redis ou banco de dados)
 user_tokens = {}
