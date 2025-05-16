@@ -47,7 +47,7 @@ def get_access_token(code):
     params = {
         "client_id": APP_ID,
         "client_secret": INSTAGRAM_APP_SECRET,
-        "INSTAGRAM_REDIRECT_URI": INSTAGRAM_REDIRECT_URI,
+        "redirect_uri": INSTAGRAM_REDIRECT_URI,
         "code": code,
     }
 
